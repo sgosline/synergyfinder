@@ -7,6 +7,12 @@
 #' @param method a parameter to specify which models to use to calculate the synergy scores. Choices are "ZIP",
 #' "Bliss", "HSA" and "Loewe". Defaults to "ZIP".
 #' @param correction a parameter to specify if baseline correction is used or not. Defaults to TRUE.
+#' @param Emin the minimal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. For "Bliss", "HSA" and "Loewe" model,
+#' it is used only when correction is required.
+#' @param Emax the maximal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. For "Bliss", "HSA" and "Loewe" model,
+#' it is used only when correction is required.
 #' @return a list of the following components:
 #' \item{dose.response.mats}{ the same as the input data component.}
 #' \item{drug.pairs}{the same as the input data component.}
@@ -19,7 +25,7 @@
 #' data("mathews_screening_data")
 #' data <- ReshapeData(mathews_screening_data)
 #' scores <- CalculateSynergy(data)
-CalculateSynergy <- function(data, method = "ZIP", correction = TRUE) {
+CalculateSynergy <- function(data, method = "ZIP", correction = TRUE, Emin = NA, Emax = NA) {
   if(!is.list(data)) {
     stop("Input data is not a list format!")
   }
@@ -28,14 +34,14 @@ CalculateSynergy <- function(data, method = "ZIP", correction = TRUE) {
   }
   dose.response.mats <- data$dose.response.mats
   num.pairs <- length(dose.response.mats)
-  scores <- list() ## save delta scores for each block
+  scores <- list() ## save delta scores for each drug combination
   for (i in 1:num.pairs) {
     response.mat <- dose.response.mats[[i]]
     scores[[i]] <- switch(method,
-                          ZIP = ZIP(response.mat, correction),
-                          HSA = HSA(response.mat, correction),
-                          Bliss = Bliss(response.mat, correction),
-                          Loewe = Loewe(response.mat, correction))
+                          ZIP = ZIP(response.mat, correction, Emin = Emin, Emax = Emax),
+                          HSA = HSA(response.mat, correction, Emin = Emin, Emax = Emax),
+                          Bliss = Bliss(response.mat, correction, Emin = Emin, Emax = Emax),
+                          Loewe = Loewe(response.mat, correction, Emin = Emin, Emax = Emax))
   }
 
   data$scores <- scores

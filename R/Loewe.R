@@ -4,6 +4,12 @@
 #'
 #' @param response.mat a dose-response matrix with concentrations as row names and column names
 #' @param correction a parameter to specify if baseline correction is used or not. Defaults to TRUE.
+#' @param Emin the minimal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. It is used only when correction
+#' is required.
+#' @param Emax the maximal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. It is used only when correction
+#' is required.
 #' @return A matrix of Loewe synergy scores for all the dose pairs for a drug combination. For a does pair with at least one zero concentration, 0 is used as the synergy score.
 #' @author Liye He \email{liye.he@helsinki.fi}
 #' @references Yadav B, Wennerberg K, Aittokallio T, Tang J. Searching for Drug Synergy in Complex Dose-Response Landscape Using an Interaction Potency Model.
@@ -12,10 +18,10 @@
 #' data("mathews_screening_data")
 #' data <- ReshapeData(mathews_screening_data)
 #' delta.score <- Loewe(data$dose.response.mats[[1]])
-Loewe <- function(response.mat, correction = TRUE) {
+Loewe <- function(response.mat, correction = TRUE, Emin = NA, Emax = NA) {
   if(correction) {
     # correct the response data
-    response.mat <- BaselineCorrectionSD(response.mat)$corrected.mat
+    response.mat <- BaselineCorrectionSD(response.mat, Emin = Emin, Emax = Emax)$corrected.mat
   }
 
   single.fit <- FittingSingleDrug(response.mat)
