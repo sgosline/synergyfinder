@@ -23,9 +23,14 @@ FittingSingleDrug <- function(response.mat, fixed = c(NA, NA, NA, NA)){
   if (var(drug.col$effect) == 0) {
     drug.col$effect[nrow(drug.col)] <- drug.col$effect[nrow(drug.col)] + 10^-10
   }
-  drug.col.model <- drm(effect ~ conc, data = drug.col,
-                        fct = LL.4(fixed), na.action = na.omit,
-                        control = drmc(errorm = FALSE))
+  
+  drug.col.model <- tryCatch({
+      drm(effect ~ conc, data = drug.col, fct = LL.4(fixed = fixed), na.action=na.omit,control = drmc(errorm = FALSE))
+  }, warning=function(w){
+      drm(effect ~ conc, data = drug.col, fct = L.4(fixed = fixed), na.action=na.omit, control = drmc(errorm = FALSE))
+  },error=function(e){
+      drm(effect ~ conc, data = drug.col, fct = L.4(fixed = fixed), na.action=na.omit)
+  })
   drug.col.fitted <- suppressWarnings(fitted(drug.col.model))
 
   # row drugs
@@ -35,9 +40,14 @@ FittingSingleDrug <- function(response.mat, fixed = c(NA, NA, NA, NA)){
   if (var(drug.row$effect) == 0) {
     drug.row$effect[nrow(drug.row)] <- drug.row$effect[nrow(drug.row)] + 10^-10
   }
-  drug.row.model <- drm(effect ~ conc, data = drug.row,
-                        fct = LL.4(fixed), na.action = na.omit,
-                        control = drmc(errorm = FALSE))
+  drug.row.model <- tryCatch({
+      drm(effect ~ conc, data = drug.row, fct = LL.4(fixed = fixed), na.action=na.omit,control = drmc(errorm = FALSE))
+  }, warning=function(w){
+      drm(effect ~ conc, data = drug.row, fct = L.4(fixed = fixed), na.action=na.omit, control = drmc(errorm = FALSE))
+  },error=function(e){
+      drm(effect ~ conc, data = drug.row, fct = L.4(fixed = fixed), na.action=na.omit)
+  })
+
   drug.row.fitted <- suppressWarnings(fitted(drug.row.model))
   return(list(drug.row.fitted = drug.row.fitted,
               drug.row.model = drug.row.model,
