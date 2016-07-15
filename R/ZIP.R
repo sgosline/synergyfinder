@@ -3,7 +3,11 @@
 #' A function to calculate delta synergy score based on zero interaction potency (ZIP) model
 #'
 #' @param response.mat a dose-response matrix with concentrations as row names and column names
-#' @param correction a parameter to specify if baseline correction is used or not. Defaults to TRUE.
+#' @param correction a parameter to specify if the baseline correction is used or not. Defaults to TRUE.
+#' @param Emin the minimal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. 
+#' @param Emax the maximal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. 
 #' @return A matrix of delta scores for all the dose pairs for a drug combination. For a does pair with at least one zero concentration, 0 is used as the synergy score.
 #' @author Liye He \email{liye.he@helsinki.fi}, Jing Tang \email{jing.tang@helsinki.fi}
 #' @references Yadav B, Wennerberg K, Aittokallio T, Tang J. Searching for Drug Synergy in Complex Dose-Response Landscape Using an Interaction Potency Model.
@@ -12,14 +16,14 @@
 #' data("mathews_screening_data")
 #' data <- ReshapeData(mathews_screening_data)
 #' delta.score <- ZIP(data$dose.response.mats[[1]])
-ZIP <- function(response.mat, correction = TRUE) {
+ZIP <- function(response.mat, correction = TRUE, Emin = NA, Emax = NA) {
   if(correction) {
     # correct the response data
-    response.mat <- BaselineCorrectionSD(response.mat)$corrected.mat
+    response.mat <- BaselineCorrectionSD(response.mat, Emin = Emin, Emax = Emax)$corrected.mat
   }
   # Fitting single drugs using logistic functions
   # NA values treated
-  single.fitted <- FittingSingleDrug(response.mat, fixed = c(NA, 0, 100, NA))
+  single.fitted <- FittingSingleDrug(response.mat, fixed = c(NA, Emin, Emax, NA))
   drug.col.response <- single.fitted$drug.col.fitted
   drug.row.response <- single.fitted$drug.row.fitted
   # Update the first row and first column
@@ -39,7 +43,7 @@ ZIP <- function(response.mat, correction = TRUE) {
     if (var(tmp$inhibition, na.rm = TRUE) == 0) { ## no variance in the drug responses
       tmp$inhibition[1] <- tmp$inhibition[1] - 10^-10
     }
-    tmp.model <- drm(inhibition ~ dose, data = tmp, fct = L.4(fixed = c(NA, tmp.min, 100,NA)),
+    tmp.model <- drm(inhibition ~ dose, data = tmp, fct = L.4(fixed = c(NA, tmp.min, Emax,NA)),
                      na.action = na.omit)
     tmp$fitted.inhibition <- suppressWarnings(fitted(tmp.model))
     if(tmp$fitted.inhibition[nrow(response.mat) - 1] < 0) tmp$fitted.inhibition[nrow(response.mat) - 1] <- tmp.min
@@ -56,7 +60,7 @@ ZIP <- function(response.mat, correction = TRUE) {
     if (var(tmp$inhibition, na.rm = TRUE) == 0) { ## no variance in the drug responses
       tmp$inhibition[1] <- tmp$inhibition[1] - 10^-10
     }
-    tmp.model <- drm(inhibition ~ dose, data = tmp, fct = L.4(fixed = c(NA, tmp.min, 100,NA)),
+    tmp.model <- drm(inhibition ~ dose, data = tmp, fct = L.4(fixed = c(NA, tmp.min, Emax,NA)),
                                       na.action = na.omit)
     tmp$fitted.inhibition <- suppressWarnings(fitted(tmp.model))
     if(tmp$fitted.inhibition[ncol(response.mat) - 1] < 0) tmp$fitted.inhibition[ncol(response.mat) - 1] <- tmp.min
