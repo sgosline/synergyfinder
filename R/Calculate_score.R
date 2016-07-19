@@ -8,11 +8,13 @@
 #' "Bliss", "HSA" and "Loewe". Defaults to "ZIP".
 #' @param correction a parameter to specify if baseline correction is used or not. Defaults to TRUE.
 #' @param Emin the minimal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. For "Bliss", "HSA" and "Loewe" model,
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to 0. For "Bliss", "HSA" and "Loewe" model,
 #' it is used only when correction is required.
 #' @param Emax the maximal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. For "Bliss", "HSA" and "Loewe" model,
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to 100. For "Bliss", "HSA" and "Loewe" model,
 #' it is used only when correction is required.
+#' @param nan.handle a parameter to specify if L.4 function or LL.4 function is used when fitting with LL.4 produces
+#' NaNs.
 #' @return a list of the following components:
 #' \item{dose.response.mats}{ the same as the input data component.}
 #' \item{drug.pairs}{the same as the input data component.}
@@ -25,7 +27,7 @@
 #' data("mathews_screening_data")
 #' data <- ReshapeData(mathews_screening_data)
 #' scores <- CalculateSynergy(data)
-CalculateSynergy <- function(data, method = "ZIP", correction = TRUE, Emin = NA, Emax = NA) {
+CalculateSynergy <- function(data, method = "ZIP", correction = TRUE, Emin = 0, Emax = 100, nan.handle = c("LL4", "L4")) {
   if(!is.list(data)) {
     stop("Input data is not a list format!")
   }
@@ -35,13 +37,14 @@ CalculateSynergy <- function(data, method = "ZIP", correction = TRUE, Emin = NA,
   dose.response.mats <- data$dose.response.mats
   num.pairs <- length(dose.response.mats)
   scores <- list() ## save delta scores for each drug combination
+  nan.handle <- match.arg(nan.handle)
   for (i in 1:num.pairs) {
     response.mat <- dose.response.mats[[i]]
     scores[[i]] <- switch(method,
-                          ZIP = ZIP(response.mat, correction, Emin = Emin, Emax = Emax),
-                          HSA = HSA(response.mat, correction, Emin = Emin, Emax = Emax),
-                          Bliss = Bliss(response.mat, correction, Emin = Emin, Emax = Emax),
-                          Loewe = Loewe(response.mat, correction, Emin = Emin, Emax = Emax))
+                          ZIP = ZIP(response.mat, correction, Emin = Emin, Emax = Emax, nan.handle),
+                          HSA = HSA(response.mat, correction, Emin = Emin, Emax = Emax, nan.handle),
+                          Bliss = Bliss(response.mat, correction, Emin = Emin, Emax = Emax, nan.handle),
+                          Loewe = Loewe(response.mat, correction, Emin = Emin, Emax = Emax, nan.handle))
   }
 
   data$scores <- scores

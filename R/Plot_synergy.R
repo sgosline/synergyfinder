@@ -53,6 +53,9 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
             scores.tmp <- scores.tmp[x.range[1]:x.range[2], ]
         }
         
+    } else {
+      # delete the first row
+      scores.tmp <- scores.tmp[-1, ]
     }
     if(!is.null(y.range)) {
         if(y.range[1] == 1) {
@@ -61,6 +64,9 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
             scores.tmp <- scores.tmp[, y.range[1]:y.range[2]]
         }
         
+    } else {
+      # delete the first column
+      scores.tmp <- scores.tmp[, -1]
     }
 
     
@@ -288,9 +294,9 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
     plots[[i]] <- fig
     if(save.file) {
       if (type %in% c("2D", "3D")) {
-        pdf(file.name, width = 12, height = 6)
-      } else {
         pdf(file.name, width = 10, height = 10)
+      } else {
+        pdf(file.name, width = 12, height = 6)
       }
       print(fig)
       dev.off()
@@ -299,7 +305,7 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
   }
 
   if(!save.file) {
-    for(i in 1:num.pairs) {
+    for(i in num.pairs) {
       dev.new(noRStudioGD = TRUE)
       replayPlot(plots[[i]])
     }

@@ -10,9 +10,19 @@ import(grid)
 import(lattice)
 import(gplots)
 import(nleqslv)
-importFrom("grDevices", "colorRampPalette", "dev.off", "pdf",
-             "recordPlot", "replayPlot", "dev.new")
-importFrom("graphics", ".filled.contour", "axis", "box", "layout",
-             "mtext", "par", "plot", "plot.new", "plot.window", "rect",
-             "title")
-importFrom("stats", "coef", "fitted", "na.omit", "var")
+importFrom(drc, drm, drmc, L.4, LL.4)
+importFrom(ggplot2, aes_string, element_text, geom_text, geom_tile,
+          ggplot, ggtitle, scale_fill_gradient2, scale_x_discrete,
+          scale_y_discrete, theme, xlab, ylab)
+importFrom(gplots, colorpanel)
+importFrom(graphics, .filled.contour, axis, box, layout, mtext, par,
+          plot, plot.new, plot.window, rect, title)
+importFrom(grDevices, colorRampPalette, dev.new, dev.off, pdf,
+          recordPlot, replayPlot)
+importFrom(grid, unit, viewport)
+importFrom(kriging, kriging)
+importFrom(lattice, do.breaks, wireframe)
+importFrom(nleqslv, nleqslv)
+importFrom(reshape2, acast)
+importFrom(stats, coef, fitted, na.omit, var, predict)
+

@@ -62,6 +62,7 @@ PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, Emin =
     dose.response.p <- dose.response.p + theme(axis.title = element_text(size = 15))
     dose.response.p <- dose.response.p + ggtitle(plot.title) + theme(plot.title = 
                                                                     element_text(size = 25))
+    
 
     single.fitted <- FittingSingleDrug(response.mat, fixed = c(NA, Emin, Emax, NA))
 
@@ -74,7 +75,7 @@ PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, Emin =
          cex = 1.5, pch = 16, ...)
     plot(single.fitted$drug.row.model, xlab = x.lab, ylab = "Inhibition (%)", type = "none",
          cex = 1.5, add = TRUE, lwd = 3)
-    title(paste("Dose-response curve for drug:", drug.row, "in Block", drug.pairs$blockIDs[i]), cex.main = 2)
+    title(paste("Dose-response curve for drug:", drug.row, "in Block", drug.pairs$blockIDs[i]), cex.main = 1)
 
 
 
@@ -84,7 +85,7 @@ PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, Emin =
     plot(single.fitted$drug.col.model, xlab = x.lab, ylab = "Inhibition (%)", type = "obs", col = "red", 
          cex = 1.5, pch = 16, ...)
     plot(single.fitted$drug.col.model, xlab = x.lab, ylab = "Inhibition (%)", type = "none", cex = 1.5, add = TRUE, lwd = 3)
-    title(paste("Dose-response curve for drug:", drug.col, "in Block", drug.pairs$blockIDs[i]), cex.main = 2)
+    title(paste("Dose-response curve for drug:", drug.col, "in Block", drug.pairs$blockIDs[i]), cex.main = 1)
 
     plot.new()
     #vps <- baseViewports()
@@ -102,7 +103,7 @@ PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, Emin =
     }
   }
   if(!save.file) {
-    for(i in 1:num.pairs) {
+    for(i in num.pairs) {
       dev.new(noRStudioGD = TRUE)
       replayPlot(plots[[i]])
     }

@@ -5,9 +5,11 @@
 #' @param response.mat a dose-response matrix with concentrations as row names and column names
 #' @param correction a parameter to specify if the baseline correction is used or not. Defaults to TRUE.
 #' @param Emin the minimal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. 
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to 0. 
 #' @param Emax the maximal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA. 
+#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to 100. 
+#' @param nan.handle a parameter to specify if L.4 function or LL.4 function is used when fitting with LL.4 produces
+#' NaNs.
 #' @return A matrix of delta scores for all the dose pairs for a drug combination. For a does pair with at least one zero concentration, 0 is used as the synergy score.
 #' @author Liye He \email{liye.he@helsinki.fi}, Jing Tang \email{jing.tang@helsinki.fi}
 #' @references Yadav B, Wennerberg K, Aittokallio T, Tang J. Searching for Drug Synergy in Complex Dose-Response Landscape Using an Interaction Potency Model.
@@ -16,14 +18,15 @@
 #' data("mathews_screening_data")
 #' data <- ReshapeData(mathews_screening_data)
 #' delta.score <- ZIP(data$dose.response.mats[[1]])
-ZIP <- function(response.mat, correction = TRUE, Emin = NA, Emax = NA) {
+ZIP <- function(response.mat, correction = TRUE, Emin = 0, Emax = 100, nan.handle = c("LL4", "L4")) {
   if(correction) {
     # correct the response data
-    response.mat <- BaselineCorrectionSD(response.mat, Emin = Emin, Emax = Emax)$corrected.mat
+    nan.handle <- match.arg(nan.handle)
+    response.mat <- BaselineCorrectionSD(response.mat, NA, NA, nan.handle)$corrected.mat
   }
   # Fitting single drugs using logistic functions
   # NA values treated
-  single.fitted <- FittingSingleDrug(response.mat, fixed = c(NA, Emin, Emax, NA))
+  single.fitted <- FittingSingleDrug(response.mat, fixed = c(NA, Emin, Emax, NA), nan.handle)
   drug.col.response <- single.fitted$drug.col.fitted
   drug.row.response <- single.fitted$drug.row.fitted
   # Update the first row and first column
