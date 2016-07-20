@@ -31,8 +31,6 @@ PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, single
   dose.response.mats <- data$dose.response.mats
   drug.pairs <- data$drug.pairs
   num.pairs <- 1:length(dose.response.mats)
-  plots <- list()
-  
   type <- match.arg(type)
   
   if(!is.null(pair.index)) {
