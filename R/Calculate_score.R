@@ -48,7 +48,7 @@ CalculateSynergy <- function(data, method = "ZIP", correction = TRUE, correction
                                     ZIP.Emax, nan.handle),
                           HSA = HSA(response.mat, correction, correction.fixed, nan.handle),
                           Bliss = Bliss(response.mat, correction, correction.fixed, nan.handle),
-                          Loewe = Loewe(response.mat, correction, correction.fixed, nan.handle)) <-
+                          Loewe = Loewe(response.mat, correction, correction.fixed, nan.handle)))
   }
 
   data$scores <- scores
