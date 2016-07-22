@@ -11,7 +11,7 @@ FittingSingleDrug(response.mat, fixed = c(NA, NA, NA, NA),
 \item{response.mat}{a matrix with first column as the drug concentrations and second column as the observed responses}
 
 \item{fixed}{a parameter to specify which parameters are fixed and at what value they are fixed. NAs for parameter
-that are not fixed.}
+that are not fixed. More details in function \code{\link[drc]{drm}}.}
 
 \item{nan.handle}{a parameter to specify if L.4 function or LL.4 function is used when fitting with LL.4 produces
 NaNs.}

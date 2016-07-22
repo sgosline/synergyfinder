@@ -4,7 +4,7 @@
 #'
 #' @param response.mat a matrix with first column as the drug concentrations and second column as the observed responses
 #' @param fixed a parameter to specify which parameters are fixed and at what value they are fixed. NAs for parameter
-#' that are not fixed.
+#' that are not fixed. More details in function \code{\link[drc]{drm}}.
 #' @param nan.handle a parameter to specify if L.4 function or LL.4 function is used when fitting with LL.4 produces
 #' NaNs.
 #' @details Single drug dose-response curve is fitted with a commonly used 4-paramter log-losistic (4PL) function.

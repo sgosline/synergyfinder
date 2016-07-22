@@ -4,17 +4,14 @@
 \alias{BaselineCorrectionSD}
 \title{Baseline correction for the dose-response matrix of drug combinations}
 \usage{
-BaselineCorrectionSD(response.mat, Emin = NA, Emax = NA,
+BaselineCorrectionSD(response.mat, fixed = c(NA, NA, NA, NA),
   nan.handle = c("LL4", "L4"))
 }
 \arguments{
 \item{response.mat}{a dose-response matrix with concentrations as row names and column names.}
 
-\item{Emin}{the minimal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA.}
-
-\item{Emax}{the maximal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-curve. If it is not NA, it is fixed the value assigned by the user. Defaults to NA.}
+\item{fixed}{a parameter to specify which parameters are fixed and at what value they are fixed. NAs for parameter
+that are not fixed. More details in function \code{\link[drc]{drm}}.}
 
 \item{nan.handle}{a parameter to specify if L.4 function or LL.4 function is used when fitting with LL.4 produces
 NaNs.}

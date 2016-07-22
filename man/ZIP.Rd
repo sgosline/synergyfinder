@@ -4,19 +4,22 @@
 \alias{ZIP}
 \title{Delta synergy score based on zero interaction potency (ZIP) model}
 \usage{
-ZIP(response.mat, correction = TRUE, Emin = 0, Emax = 100,
-  nan.handle = c("LL4", "L4"))
+ZIP(response.mat, correction = TRUE, correction.fixed = c(NA, NA, NA, NA),
+  single.fixed = c(NA, NA, NA, NA), ZIP.Emax = NA, nan.handle = c("LL4",
+  "L4"))
 }
 \arguments{
 \item{response.mat}{a dose-response matrix with concentrations as row names and column names}
 
 \item{correction}{a parameter to specify if the baseline correction is used or not. Defaults to TRUE.}
 
-\item{Emin}{the minimal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-curve. If it is not NA, it is fixed the value assigned by the user. Defaults to 0.}
+\item{correction.fixed}{a parameter to specify which parameters of L.4 or LL.4 functions are fixed and at what value they are fixed for 
+baseline correction. NAs for parameter that are not fixed. More details in function \code{\link[drc]{drm}}.}
 
-\item{Emax}{the maximal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-curve. If it is not NA, it is fixed the value assigned by the user. Defaults to 100.}
+\item{single.fixed}{a parameter to specify which parameters of L.4 or LL.4 functions are fixed and at what value they are fixed for 
+single dose-response fitting. NAs for parameter that are not fixed. More details in function \code{\link[drc]{drm}}.}
+
+\item{ZIP.Emax}{the maximal inhibition of the drugs when applying ZIP model. By default, it is not fixed.}
 
 \item{nan.handle}{a parameter to specify if L.4 function or LL.4 function is used when fitting with LL.4 produces
 NaNs.}

@@ -29,3 +29,13 @@
 * Choose drug combination pair in PlotSynergy function.
 
 * Set legend starting and ending point in PlotSynergy function.
+
+# synergyfinder 0.99.3
+
+## New features
+
+* Fixed the bug to calculate the summary delta score.
+
+* Allow users to set correction.fixed, single.fixed, ZIP.max parameters in CalculateSynergy function.
+
+* More parameters in PlotDoseResponse function.

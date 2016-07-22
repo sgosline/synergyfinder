@@ -20,6 +20,8 @@
 #' @param y.range a parameter to specify the starting and ending concentration of the drug on y-axis. Use e.g., c(1, 3) to 
 #' specify that only from 1st to 3rd concentrations of the drug on y-axis are used. By default, it is NULl so all the 
 #' concentrations are used.
+#' @param pdf.height a parameter to specify the height of the pdf file when save.file is TRUE. Defaults to 8.
+#' @param pdf.width a parameter to specify the width of the pdf file when save.file is TRUE. Defaults to 8.
 #' @return a pdf file or the interaction landscapes are only displayed depending on
 #' the save.file parameter.
 #' @author Liye He \email{liye.he@helsinki.fi}
@@ -29,13 +31,16 @@
 #' scores <- CalculateSynergy(data)
 #' PlotSynergy(scores, "2D")
 
-PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL, legend.start = NULL, legend.end = NULL, x.range = NULL, y.range = NULL){
+PlotSynergy <- function(data, type = c("all", "3D", "2D"), save.file = FALSE, pair.index = NULL,
+                        legend.start = NULL, legend.end = NULL, x.range = NULL, y.range = NULL,
+                        pdf.width = 8, pdf.height = 8){
   if(!is.list(data)) {
     stop("Input data is not a list format!")
   }
   scores <- data$scores
   drug.pairs <- data$drug.pairs
   num.pairs <- 1:length(scores)
+  type <- match.arg(type)
   plots <- list()
   if(!is.null(pair.index)) {
       num.pairs <- pair.index
@@ -120,10 +125,12 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
 
     conc.unit <- drug.pairs$concUnit[i] ## concentration unit
     unit.text <- paste("(", conc.unit, ")", sep = "")
-    file.name <- paste(drug.row, drug.col, "synergy", drug.pairs$blockIDs[i], data$method, "pdf", sep = ".")
+    d.r <- drug.row
+    d.c <- drug.col
+    #file.name <- paste(drug.row, drug.col, "synergy", drug.pairs$blockIDs[i], data$method, "pdf", sep = ".")
     drug.row <- paste(drug.row, unit.text, sep = " ")
     drug.col <- paste(drug.col, unit.text, sep = " ")
-    max.dose <- max(abs(max(scores.dose)), abs(min(scores.dose)))
+    max.dose <- max(abs(max(scores.tmp)), abs(min(scores.tmp)))
     color.range <- round(max.dose + 5, -1)
     if(is.null(legend.start)){
         start.point <- -color.range
@@ -160,7 +167,7 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
       if(!is.null(y.range)) {
         y.conc1 <- y.conc1[y.range[1]:y.range[2]]
       }
-      fig <- wireframe(plots.3d,scales = list(arrows = FALSE,distance=c(0.8,0.8,0.8),col=1,cex=0.8,z = list(tick.number=7),x=list(at=seq(0, pixels.num, 5),labels=round(x.conc1, 1)),y=list(at=seq(0,pixels.num,5),labels=round(y.conc1,1))),
+      fig <- wireframe(plots.3d,scales = list(arrows = FALSE,distance=c(0.8,0.8,0.8),col=1,cex=0.8,z = list(tick.number=7),x=list(at=seq(0, pixels.num, 5),labels=round(x.conc1, 3)),y=list(at=seq(0,pixels.num,5),labels=round(y.conc1,3))),
                        drape = TRUE, colorkey = list(space="top",width=0.5),
                        screen = list(z = 30, x = -55),
                        zlab=list(expression("Synergy score"),rot=90,cex=1,axis.key.padding = 0),xlab=list(as.character(drug.col),cex=1, rot=20),ylab=list(as.character(drug.row),cex=1,rot=-50),
@@ -172,8 +179,17 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
                        zoom = 1, aspect = 1
                        #par.settings=list(layout.widths=list(left.padding=0,right.padding=0), layout.heights=list(top.padding=0, bottom.padding=0)) # margin
       )
-      print(fig)
-      fig <- recordPlot()
+      # print(fig)
+      # fig <- recordPlot()
+      if(save.file) {
+        file.name <- paste(d.r, d.c, "synergy.3D", drug.pairs$blockIDs[i], data$method, "pdf", sep = ".")
+        pdf(file.name, width = pdf.width, height = pdf.height)
+        print(fig)
+        dev.off()
+      } else {
+        dev.new(noRStudioGD = TRUE)
+        print(fig)
+      }
     } else if (type == "2D") {
       dev.new(noRStudioGD = TRUE)
       layout(matrix(c(1, 2), nrow = 2L, ncol = 1L), heights = c(0.1, 1))
@@ -213,10 +229,19 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
       if(!is.null(y.range)) {
         y.conc <- y.conc[y.range[1]:y.range[2]]
       }
-      axis(side = 1, at = seq(0, 1, by = 1/(length(x.conc) - 1)), labels = round(x.conc, 1))
-      axis(side = 2, at = seq(0, 1, by = 1/(length(y.conc) - 1)), labels = round(y.conc, 1))
+      axis(side = 1, at = seq(0, 1, by = 1/(length(x.conc) - 1)), labels = round(x.conc, 3))
+      axis(side = 2, at = seq(0, 1, by = 1/(length(y.conc) - 1)), labels = round(y.conc, 3))
       fig <- recordPlot()
       dev.off()
+      if(save.file) {
+        file.name <- paste(d.r, d.c, "synergy.2D", drug.pairs$blockIDs[i], data$method, "pdf", sep = ".")
+        pdf(file.name, width = pdf.width, height = pdf.height)
+        replayPlot(fig)
+        dev.off()
+      } else {
+        dev.new(noRStudioGD = TRUE)
+        replayPlot(fig)
+      }
     } else {
         plots.3d <- c
         if(!is.null(x.range)) {
@@ -237,7 +262,7 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
         if(!is.null(y.range)) {
             y.conc1 <- y.conc1[y.range[1]:y.range[2]]
         }
-      syn.3d.plot <- wireframe(plots.3d,scales = list(arrows = FALSE,distance=c(0.8,0.8,0.8),col=1,cex=0.8,z = list(tick.number=7),x=list(at=seq(0, pixels.num, 5),labels=round(x.conc1, 1)),y=list(at=seq(0,pixels.num,5),labels=round(y.conc1,1))),
+      syn.3d.plot <- wireframe(plots.3d,scales = list(arrows = FALSE,distance=c(0.8,0.8,0.8),col=1,cex=0.8,z = list(tick.number=7),x=list(at=seq(0, pixels.num, 5),labels=round(x.conc1, 3)),y=list(at=seq(0,pixels.num,5),labels=round(y.conc1,3))),
                                drape = TRUE, colorkey = list(space="top",width=0.5),
                                screen = list(z = 30, x = -55),
                                zlab=list(expression("Synergy score"),rot=90,cex=1,axis.key.padding = 0),xlab=list(as.character(drug.col),cex=1, rot=20),ylab=list(as.character(drug.row),cex=1,rot=-50),
@@ -286,30 +311,23 @@ PlotSynergy <- function(data, type = "2D", save.file = FALSE, pair.index = NULL,
       if(!is.null(y.range)) {
           y.conc <- y.conc[y.range[1]:y.range[2]]
       }
-      axis(side = 1, at = seq(0, 1, by = 1/(length(x.conc) - 1)), labels = round(x.conc, 1))
-      axis(side = 2, at = seq(0, 1, by = 1/(length(y.conc) - 1)), labels = round(y.conc, 1))
+      axis(side = 1, at = seq(0, 1, by = 1/(length(x.conc) - 1)), labels = round(x.conc, 3))
+      axis(side = 2, at = seq(0, 1, by = 1/(length(y.conc) - 1)), labels = round(y.conc, 3))
       print(syn.3d.plot, position = c(0.5,0, 1, 1), newpage = FALSE)
       fig <- recordPlot()
-    }
-    plots[[i]] <- fig
-    if(save.file) {
-      if (type %in% c("2D", "3D")) {
-        pdf(file.name, width = 10, height = 10)
+      if(save.file) {
+        file.name <- paste(d.r, d.c, "synergy", drug.pairs$blockIDs[i], data$method, "pdf", sep = ".")
+        pdf(file.name, width = pdf.width, height = pdf.height)
+        replayPlot(fig)
+        dev.off()
       } else {
-        pdf(file.name, width = 12, height = 6)
+        dev.new(noRStudioGD = TRUE)
+        replayPlot(fig)
       }
-      print(fig)
-      dev.off()
     }
 
   }
 
-  if(!save.file) {
-    for(i in num.pairs) {
-      dev.new(noRStudioGD = TRUE)
-      replayPlot(plots[[i]])
-    }
-  }
 
 
 }

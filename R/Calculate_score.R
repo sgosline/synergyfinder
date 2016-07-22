@@ -7,12 +7,11 @@
 #' @param method a parameter to specify which models to use to calculate the synergy scores. Choices are "ZIP",
 #' "Bliss", "HSA" and "Loewe". Defaults to "ZIP".
 #' @param correction a parameter to specify if baseline correction is used or not. Defaults to TRUE.
-#' @param Emin the minimal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to 0. For "Bliss", "HSA" and "Loewe" model,
-#' it is used only when correction is required.
-#' @param Emax the maximal effect of the drug used in the 4-parameter log-logistic function to fit the dose-response 
-#' curve. If it is not NA, it is fixed the value assigned by the user. Defaults to 100. For "Bliss", "HSA" and "Loewe" model,
-#' it is used only when correction is required.
+#' @param correction.fixed a parameter to specify which parameters of L.4 or LL.4 functions are fixed and at what value they are fixed for 
+#' baseline correction. NAs for parameter that are not fixed. More details in function \code{\link[drc]{drm}}.
+#' @param single.fixed a parameter to specify which parameters of L.4 or LL.4 functions are fixed and at what value they are fixed for 
+#' single dose-response fitting. NAs for parameter that are not fixed. More details in function \code{\link[drc]{drm}}. It is only required by ZIP model.
+#' @param ZIP.Emax the maximal inhibition of the drugs when applying ZIP model. By default, it is not fixed. 
 #' @param nan.handle a parameter to specify if L.4 function or LL.4 function is used when fitting with LL.4 produces
 #' NaNs.
 #' @return a list of the following components:
@@ -27,7 +26,8 @@
 #' data("mathews_screening_data")
 #' data <- ReshapeData(mathews_screening_data)
 #' scores <- CalculateSynergy(data)
-CalculateSynergy <- function(data, method = "ZIP", correction = TRUE, Emin = 0, Emax = 100, nan.handle = c("LL4", "L4")) {
+CalculateSynergy <- function(data, method = "ZIP", correction = TRUE, correction.fixed = c(NA, NA, NA, NA), single.fixed = c(NA, NA, NA, NA), 
+                             ZIP.Emax = NA, nan.handle = c("LL4", "L4")) {
   if(!is.list(data)) {
     stop("Input data is not a list format!")
   }
@@ -41,10 +41,11 @@ CalculateSynergy <- function(data, method = "ZIP", correction = TRUE, Emin = 0, 
   for (i in 1:num.pairs) {
     response.mat <- dose.response.mats[[i]]
     scores[[i]] <- switch(method,
-                          ZIP = ZIP(response.mat, correction, Emin = Emin, Emax = Emax, nan.handle),
-                          HSA = HSA(response.mat, correction, Emin = Emin, Emax = Emax, nan.handle),
-                          Bliss = Bliss(response.mat, correction, Emin = Emin, Emax = Emax, nan.handle),
-                          Loewe = Loewe(response.mat, correction, Emin = Emin, Emax = Emax, nan.handle))
+                          ZIP = ZIP(response.mat, correction, correction.fixed, single.fixed,
+                                    ZIP.Emax, nan.handle),
+                          HSA = HSA(response.mat, correction, correction.fixed, nan.handle),
+                          Bliss = Bliss(response.mat, correction, correction.fixed, nan.handle),
+                          Loewe = Loewe(response.mat, correction, correction.fixed, nan.handle))
   }
 
   data$scores <- scores

@@ -12,8 +12,8 @@
 #' @param type a parameter to specify the types of the plot. There are three options: "curve", "heatmap" and "both". If it is "curve", only dose-response
 #' curves for single drugs are plotted. If it is "heatmap", the dose-response matrix will be plotted as a heatmap. If it is "both", both plots are returned.
 #' @param merge a parameter to specify if the two dose-response curves are merged into one plot or not. It only works when type is set to curve.
-#' @param pdf.height a parameter to specify the height of the pdf file when save.file is TRUE. Defaults to 6.
-#' @param pdf.width a parameter to specify the width of the pdf file when save.file is TRUE. Defaults to 6.
+#' @param pdf.height a parameter to specify the height of the pdf file when save.file is TRUE. Defaults to 8.
+#' @param pdf.width a parameter to specify the width of the pdf file when save.file is TRUE. Defaults to 8.
 #' @param ... further graphical parameters from \code{\link{plot}} for plotting the single drug dose-response curve. 
 #' Use e.g., cex.lab to change the axis label size and cex.axis to change the tick size of axises. 
 #' @return if save.file parameter is TRUE, pdf files are returned. Otherwise, the plots are only displayed.
@@ -21,10 +21,10 @@
 #' @examples
 #' data("mathews_screening_data")
 #' data <- ReshapeData(mathews_screening_data)
-#' PlotDoseResponse(data)
+#' PlotDoseResponse(data, type = "both", save.file = TRUE)
 PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, single.fixed = c(NA, NA, NA, NA),
-                              type = c("curve", "heatmap", "both"),  merge = FALSE,
-                              pdf.height = 6, pdf.width = 6, ...) {
+                              type = c("both", "heatmap", "curve"),  merge = FALSE,
+                              pdf.height = 8, pdf.width = 8, ...) {
   if(!is.list(data)) {
     stop("Input data is not a list format!")
   }
@@ -32,7 +32,6 @@ PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, single
   drug.pairs <- data$drug.pairs
   num.pairs <- 1:length(dose.response.mats)
   type <- match.arg(type)
-  
   if(!is.null(pair.index)) {
       num.pairs <- pair.index
   }
@@ -58,8 +57,8 @@ PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, single
                           drug.pairs$blockIDs[i], sep = " ")
       
       # plot dose-response matrix
-      axis.x.text <- round(as.numeric(colnames(response.mat)), 1)
-      axis.y.text <- round(as.numeric(rownames(response.mat)), 1)
+      axis.x.text <- round(as.numeric(colnames(response.mat)), 3)
+      axis.y.text <- round(as.numeric(rownames(response.mat)), 3)
       dose.response.p <- ggplot(data.plot, aes_string(x = "x", y = "y")) + geom_tile(aes_string(fill = 'Inhibition')) +
         geom_text(aes_string(fill = 'Inhibition', label = 'Inhibition')) +
         scale_fill_gradient2(low = "green", high = "red", midpoint = 0, name = "Inhibiton (%)") +
@@ -152,8 +151,8 @@ PlotDoseResponse <- function (data, save.file = FALSE, pair.index = NULL, single
                           drug.pairs$blockIDs[i], sep = " ")
       
       # plot dose-response matrix
-      axis.x.text <- round(as.numeric(colnames(response.mat)), 1)
-      axis.y.text <- round(as.numeric(rownames(response.mat)), 1)
+      axis.x.text <- round(as.numeric(colnames(response.mat)), 3)
+      axis.y.text <- round(as.numeric(rownames(response.mat)), 3)
       dose.response.p <- ggplot(data.plot, aes_string(x = "x", y = "y")) + geom_tile(aes_string(fill = 'Inhibition')) +
         geom_text(aes_string(fill = 'Inhibition', label = 'Inhibition')) +
         scale_fill_gradient2(low = "green", high = "red", midpoint = 0, name = "Inhibiton (%)") +
